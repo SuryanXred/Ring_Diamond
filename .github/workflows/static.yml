@@ -1,4 +1,4 @@
-name: Build and deploy web version
+name: Deploy static web version
 
 on:
   push:
@@ -20,37 +20,15 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.11"
-      - name: Install web dependencies
-        run: python -m pip install -r requirements-web.txt
-      - name: Build Pygbag application
-        run: python -m pygbag --build main.py
-      - name: Bundle BrowserFS runtime dependency
+      - name: Prepare static web page
         run: |
-          curl --fail --location \
-            https://cdn.jsdelivr.net/npm/browserfs@1.4.3/dist/browserfs.min.js \
-            --output build/web/browserfs.min.js
-          python - <<'PY'
-          from pathlib import Path
-
-          path = Path("build/web/index.html")
-          html = path.read_text(encoding="utf-8")
-          script = '<script src="browserfs.min.js"></script>'
-          html = html.replace(script, "")
-          html = html.replace(
-              '<script src="https://pygame-web.github.io/cdn/0.9.3//browserfs.min.js"></script>',
-              "",
-          )
-          html = html.replace('<html lang="en-us">', f'<html lang="en-us">{script}', 1)
-          path.write_text(html, encoding="utf-8")
-          PY
+          mkdir site
+          cp web-static/index.html site/index.html
+          cp -r images site/images
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: build/web
+          path: site
 
   deploy:
     needs: build
