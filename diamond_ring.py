@@ -9,6 +9,7 @@ import pygame
 
 TAU = np.pi * 2
 LOOP = 20.0         # length of one run (s)
+START_HOLD = 0.8    # keep the opening frame visible before the reveal starts
 BUILD = 3.2         # dust fades in around here
 TURN = 12.0         # seconds per full turn
 FLOOR = -0.78
@@ -397,6 +398,7 @@ class Canvas:
         self.shape = pygame.Surface((COLS * CW, ROWS * CH))
         self.trail = pygame.Surface((W, H))
         self.fade = (int(TRAIL * 255),) * 3
+        self.reset()
 
     def reset(self):
         self.trail.fill((0, 0, 0))
@@ -445,9 +447,9 @@ async def main():
     screen = pygame.Surface((W, H))
     small = pygame.font.SysFont(MONO, 17)
     canvas = Canvas(glyphs())
-    t, paused = 0.0, False
-    previous = time.perf_counter()
+    t, paused, start_hold = 0.0, False, START_HOLD
     art, info, count = canvas.draw(t)
+    previous = time.perf_counter()
     while True:
         for e in pygame.event.get():
             if e.type == pygame.QUIT or (e.type == pygame.KEYDOWN and e.key == pygame.K_ESCAPE):
@@ -456,7 +458,7 @@ async def main():
             if e.type == pygame.KEYDOWN and e.key == pygame.K_SPACE:
                 paused = not paused
             if e.type == pygame.KEYDOWN and e.key == pygame.K_r:
-                t = 0.0
+                t, start_hold = 0.0, START_HOLD
                 canvas.reset()
             if e.type == pygame.KEYDOWN and e.key == pygame.K_s:
                 pygame.image.save(screen, str(Path(__file__).with_name(f"diamond_ring_{int(time.time())}.png")))
@@ -464,9 +466,12 @@ async def main():
         dt = min(now - previous, 1 / 15)
         previous = now
         if not paused:
-            t += min(dt, 1 / 15)
+            if start_hold > 0:
+                start_hold = max(0.0, start_hold - dt)
+            else:
+                t += min(dt, 1 / 15)
             if t > LOOP:
-                t = 0.0
+                t, start_hold = 0.0, START_HOLD
                 canvas.reset()
             art, info, count = canvas.draw(t)
         screen.fill((0, 0, 0))
