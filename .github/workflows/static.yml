@@ -40,6 +40,10 @@ jobs:
           html = path.read_text(encoding="utf-8")
           script = '<script src="browserfs.min.js"></script>'
           html = html.replace(script, "")
+          html = html.replace(
+              '<script src="https://pygame-web.github.io/cdn/0.9.3//browserfs.min.js"></script>',
+              "",
+          )
           html = html.replace('<html lang="en-us">', f'<html lang="en-us">{script}', 1)
           path.write_text(html, encoding="utf-8")
           PY
