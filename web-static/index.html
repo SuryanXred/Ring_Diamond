@@ -23,21 +23,12 @@
       max-height: 80vh;
       max-width: min(90vw, 900px);
       object-fit: contain;
-      opacity: 0;
-      transition: opacity 0.4s ease;
     }
-    img.ready { opacity: 1; }
     p { color: #787080; margin: 0; }
   </style>
 </head>
 <body>
-  <img id="ring" src="images/preview.gif" alt="Animasi cincin berlian">
+  <img src="images/preview.gif" alt="Animasi cincin berlian">
   <p>Mau ga? · @anggit.suryan</p>
-  <script>
-    const ring = document.getElementById("ring");
-    ring.addEventListener("load", () => {
-      setTimeout(() => ring.classList.add("ready"), 800);
-    }, { once: true });
-  </script>
 </body>
 </html>
