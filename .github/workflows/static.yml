@@ -33,9 +33,16 @@ jobs:
           curl --fail --location \
             https://cdn.jsdelivr.net/npm/browserfs@1.4.3/dist/browserfs.min.js \
             --output build/web/browserfs.min.js
-          sed -i \
-            's#https://pygame-web.github.io/cdn/0.9.3//browserfs.min.js#browserfs.min.js#' \
-            build/web/index.html
+          python - <<'PY'
+          from pathlib import Path
+
+          path = Path("build/web/index.html")
+          html = path.read_text(encoding="utf-8")
+          script = '<script src="browserfs.min.js"></script>'
+          html = html.replace(script, "")
+          html = html.replace('<html lang="en-us">', f'<html lang="en-us">{script}', 1)
+          path.write_text(html, encoding="utf-8")
+          PY
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:
