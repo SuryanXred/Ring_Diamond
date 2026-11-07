@@ -28,6 +28,14 @@ jobs:
         run: python -m pip install -r requirements-web.txt
       - name: Build Pygbag application
         run: python -m pygbag --build main.py
+      - name: Bundle BrowserFS runtime dependency
+        run: |
+          curl --fail --location \
+            https://cdn.jsdelivr.net/npm/browserfs@1.4.3/dist/browserfs.min.js \
+            --output build/web/browserfs.min.js
+          sed -i \
+            's#https://pygame-web.github.io/cdn/0.9.3//browserfs.min.js#browserfs.min.js#' \
+            build/web/index.html
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:
